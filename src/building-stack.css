@@ -1,0 +1,26 @@
+.building-stack{--stack-border:#344455;position:relative;overflow:hidden;background:radial-gradient(ellipse at 55% 40%,#2a414c 0%,#172735 60%,#111c2a 100%);border:1px solid #2c3c4b;border-radius:8px;padding:19px 20px 15px;color:#e9f0ed}
+.building-stack__heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.building-stack__eyebrow{display:block;color:#91a8aa;font-size:9px;letter-spacing:1.5px;font-weight:700}
+.building-stack__heading h2{font:600 16px 'Manrope',sans-serif;letter-spacing:-.5px;margin:7px 0 0}
+.building-stack__count{white-space:nowrap;color:#89a698;font-size:8px;font-weight:700;letter-spacing:1px;border:1px solid #465d59;border-radius:3px;padding:5px 6px}
+.building-stack__description{margin:6px 0 0;color:#9cabb4;font-size:10px;line-height:1.5}
+.building-stack__drawing{width:min(100%,350px);margin:13px auto 9px;filter:drop-shadow(0 14px 12px #07101988)}
+.building-stack__roof{height:14px;width:89%;margin:0 auto -4px;background:linear-gradient(165deg,#9db5aa,#405a5a);clip-path:polygon(50% 0,100% 65%,50% 100%,0 65%);position:relative;z-index:1;text-align:center}
+.building-stack__roof span{font-size:6px;letter-spacing:1.4px;color:#e4efe5;position:relative;top:1px}
+.building-stack__levels{display:grid;gap:0}
+.building-stack__level{display:block;width:100%;aspect-ratio:320/89;position:relative;background:transparent;border:0;padding:0;color:inherit;text-align:left;transition:transform .18s ease,filter .18s ease}
+.building-stack__level:hover{transform:translateX(5px);filter:brightness(1.18)}
+.building-stack__level.is-selected{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--building-accent) 48%,transparent))}
+.building-stack__level:focus-visible{outline:2px solid #d9f7e7;outline-offset:2px;border-radius:4px;z-index:2}
+.building-stack__art{width:100%;height:100%;display:block;overflow:visible}
+.building-stack__wall-left{fill:#45685e;stroke:#95b6a8;stroke-width:.6}.building-stack__wall-right{fill:#365e5a;stroke:#95b6a8;stroke-width:.6}.building-stack__mullion{stroke:#b6d2c3;stroke-width:1;opacity:.7}
+.building-stack__floor{fill:#c4b596;stroke:#edf0d9;stroke-width:.8}.building-stack__slab-left{fill:#74847b;stroke:#a3b7a9;stroke-width:.6}.building-stack__slab-right{fill:#4f6f68;stroke:#a3b7a9;stroke-width:.6}.building-stack__rail{fill:none;stroke:#e2e8d9;stroke-width:1.2}.building-stack__desk{fill:#f1dec1;stroke:#987e68;stroke-width:.5}.building-stack__lamp{fill:var(--building-accent);stroke:#fcf4dc;stroke-width:.5}.building-stack__meeting{fill:#809a7d}.building-stack__plant{fill:#547e5b}.building-stack__art-number{font:700 5px sans-serif;fill:#38594e}
+.building-stack__level.is-selected .building-stack__floor{fill:color-mix(in srgb,var(--building-accent) 26%,#d3c2a4)}
+.building-stack__name{position:absolute;left:4%;top:38%;display:flex;align-items:center;gap:6px;max-width:63%;padding:4px 7px;border:1px solid #7a928d;border-radius:4px;background:rgba(17,33,38,.92);box-shadow:0 2px 8px #07141170}
+.building-stack__name b{color:var(--building-accent);font:700 10px 'Manrope',sans-serif}.building-stack__name strong,.building-stack__name small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.building-stack__name strong{font-size:10px;font-weight:700;color:#f1f5f1}.building-stack__name small{font-size:8px;color:#b5c9c2;margin-top:2px}.building-stack__name i{color:var(--building-accent);font-size:12px;font-style:normal}.building-stack__level.is-selected .building-stack__name{border-color:var(--building-accent)}
+.building-stack__foundation{height:9px;width:94%;margin:-1px auto 0;background:linear-gradient(180deg,#8b9e91,#3b5855);clip-path:polygon(0 0,100% 0,95% 100%,5% 100%)}
+.building-stack__foot{border-top:1px solid #344653;padding-top:11px;display:flex;align-items:center;gap:6px;font-size:8px;letter-spacing:1px;font-weight:700;color:#95aaa8}
+.building-stack__foot span:last-child{margin-left:auto;color:#718a88}
+.building-stack__dot{width:6px;height:6px;border-radius:50%;background:#9fd4b8;box-shadow:0 0 8px #9fd4b8}
+@media(max-width:680px){.building-stack{padding:15px}.building-stack__drawing{max-width:350px;margin-top:10px}}
+@media(prefers-reduced-motion:reduce){.building-stack__level{transition:none}}
