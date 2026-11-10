@@ -36,7 +36,19 @@ Model names are plain Gemini names, for example `gemini-3.8-flash`.
 
 When a floor is connected, a project assigned to it gets a **Run with AI** button (and an optional "start now" box when you create it). The assigned agent sits at their desk while the model works and answers in character for their department. The reply is filed in the file holder as an AI report, and the project is marked Done, or Blocked with the error. The model receives the project name, link and brief only: it cannot open repositories or browse.
 
-To use the office from another device on your network, run `npm run dev:lan` and open the "Network" address it prints. Anyone on that network can then edit floors and spend your API credits, so only do this on a network you trust.
+To use the office from another device on your network, run `npm run dev:lan` and open the "Network" address it prints. Anyone on that network can then edit floors, spend your API credits and use your Claude Code sign-in (including file edits on floors set to edit), so only do this on a network you trust.
+
+### Claude Code CLI
+
+Provider "Claude Code CLI" runs the `claude` command on the computer hosting the office, using whoever is signed in to Claude Code there (run `claude` once and type `/login`). No API key is needed. Set the model to `sonnet`, `opus` or `fable`.
+
+When a project's path is a local folder under `~/Projects`, Claude works inside that folder. You can change the allowed root with `AI_OFFICE_WORKSPACE_ROOT` in `.env`. Choose per floor whether Claude may only **read** files (the default) or also **edit** them. Shell commands are never allowed. Web search works in both modes.
+
+## Talk to the CEO
+
+Open **Talk to the CEO** and describe a goal in plain words. The CEO runs on a connected floor of your choice and proposes a plan: 1 to 6 tasks, each assigned to a floor and department. Before you approve, you can change a task's floor or department, or remove it. After you approve, each task goes to a free agent in that department, the agents sit down at their desks, and the tasks run in parallel. When all of them finish, the CEO writes a summary. The summary appears in the chat and is saved to the file holder, next to every task's full report.
+
+Tasks run from the browser tab, so keep the page open until they finish. The conversation is stored in the browser.
 
 ## What works today
 

@@ -13,6 +13,8 @@ export const PROVIDERS = {
   vertex: { label: 'Google Vertex AI (Cloud project)', defaultModel: 'gemini-3.8-flash', keyEnv: 'VERTEX_CREDENTIALS', needsBaseUrl: false, noKey: true },
   openai: { label: 'OpenAI-compatible (OpenAI, xAI Grok, OpenRouter, Ollama…)', defaultModel: 'gpt-5', keyEnv: 'OPENAI_API_KEY', needsBaseUrl: true, defaultBaseUrl: 'https://api.openai.com/v1' },
   anthropic: { label: 'Anthropic Claude', defaultModel: 'claude-sonnet-5-5', keyEnv: 'ANTHROPIC_API_KEY', needsBaseUrl: false },
+  // Runs the local `claude` CLI headless, using whoever is signed in to Claude Code on this computer.
+  'claude-cli': { label: 'Claude Code CLI (your Claude sign-in)', defaultModel: 'sonnet', keyEnv: '', needsBaseUrl: false, noKey: true },
   none: { label: 'Not connected', defaultModel: '', keyEnv: '', needsBaseUrl: false },
 }
 
@@ -59,6 +61,7 @@ export function normalizeFloor(input, id) {
       model: text(p.model, PROVIDERS[type].defaultModel, 100),
       baseUrl: text(p.baseUrl, PROVIDERS[type].defaultBaseUrl || '', 300),
       systemPrompt: text(p.systemPrompt, '', 4000),
+      access: p.access === 'edit' ? 'edit' : 'read', // Claude CLI only: may it edit files in the project folder?
       // Only the server sets these two; the browser never sees the key itself.
       hasKey: !!p.hasKey,
       keyHint: typeof p.keyHint === 'string' ? p.keyHint : '',
