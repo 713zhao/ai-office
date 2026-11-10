@@ -23,7 +23,16 @@ Open **Floors & AI** in the sidebar to manage floors. You can:
 - **Edit** any floor's name, departments and LLM provider: **Google Gemini**, **Anthropic Claude**, or any **OpenAI-compatible** API (OpenAI, xAI Grok via `https://api.x.ai/v1`, OpenRouter, a local Ollama at `http://localhost:11434/v1`, …). Set the model, API key and optional extra instructions, then use **Test connection**.
 - **Hide** floors you don't use (at least one stays visible).
 
-Settings and API keys are stored on the computer running the office in `data/floors.json` (gitignored, owner-only permissions). Keys are never sent to the browser. Instead of saving a key, you can export `GEMINI_API_KEY`, `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` before `npm run dev`.
+Settings and API keys are stored on the computer running the office in `data/floors.json` (gitignored, owner-only permissions). Keys are never sent to the browser. Instead of saving a key in the app, copy `.env.example` to `.env` (also gitignored) and fill in `GEMINI_API_KEY`, `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`; restart the office after editing it.
+
+### Google Gemini
+
+Two ways, both configured in `.env`:
+
+- **AI Studio key** (provider "Google Gemini (AI Studio key)"): set `GEMINI_API_KEY` from https://aistudio.google.com/apikey. Requires billing or prepaid credit on that AI Studio project.
+- **Vertex AI** (provider "Google Vertex AI"): Gemini billed to a Google Cloud project, so Cloud credits apply. Set `VERTEX_CREDENTIALS` to a credentials file and `VERTEX_LOCATION=global`. The file can be an `authorized_user` sign-in (for example from `gcloud auth application-default login`, saved at `~/.config/gcloud/application_default_credentials.json`) or a service-account key JSON. Set `VERTEX_PROJECT` if the file does not name a project. The Vertex AI API must be enabled on that project.
+
+Model names are plain Gemini names, for example `gemini-3.8-flash`.
 
 When a floor is connected, a project assigned to it gets a **Run with AI** button (and an optional "start now" box when you create it). The assigned agent sits at their desk while the model works and answers in character for their department. The reply is filed in the file holder as an AI report, and the project is marked Done, or Blocked with the error. The model receives the project name, link and brief only: it cannot open repositories or browse.
 

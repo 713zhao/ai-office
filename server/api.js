@@ -1,6 +1,7 @@
 // Local API used by the office UI. Runs inside the Vite dev/preview server (see vite.config.js).
 // API keys are stored in data/floors.json (gitignored) or read from environment variables,
 // and are never sent back to the browser.
+import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { DEFAULT_FLOORS, PROVIDERS, normalizeFloor } from '../src/floor-config.js'
@@ -22,14 +23,47 @@ function save(floors) {
 
 function keyFor(floor) {
   const p = floor.provider || {}
+  if (p.type === 'vertex') return vertexFile() && fs.existsSync(vertexFile()) ? 'vertex' : ''
   return p.apiKey || (PROVIDERS[p.type]?.keyEnv && process.env[PROVIDERS[p.type].keyEnv]) || ''
+}
+
+// ---- Vertex AI: Gemini billed to a Google Cloud project (same setup as the ai-company console) ----
+// VERTEX_CREDENTIALS points to an "authorized_user" sign-in file (gcloud's application_default_credentials.json
+// works too) or a service-account key JSON. VERTEX_PROJECT overrides the project; VERTEX_LOCATION defaults to global.
+const vertexFile = () => process.env.VERTEX_CREDENTIALS ? path.resolve(process.env.VERTEX_CREDENTIALS) : ''
+const vertexToken = { value: '', expires: 0 }
+
+async function vertexAccess() {
+  const creds = JSON.parse(fs.readFileSync(vertexFile(), 'utf8'))
+  const project = process.env.VERTEX_PROJECT || creds.project_id || creds.quota_project_id
+  if (!project) throw new Error('Vertex: set VERTEX_PROJECT in .env')
+  if (!vertexToken.value || Date.now() > vertexToken.expires - 300_000) {
+    let body
+    if (creds.type === 'service_account') {
+      const now = Math.floor(Date.now() / 1000)
+      const b64 = obj => Buffer.from(JSON.stringify(obj)).toString('base64url')
+      const unsigned = `${b64({ alg: 'RS256', typ: 'JWT', kid: creds.private_key_id })}.${b64({ iss: creds.client_email, scope: 'https://www.googleapis.com/auth/cloud-platform', aud: creds.token_uri, iat: now, exp: now + 3600 })}`
+      const signature = crypto.sign('RSA-SHA256', Buffer.from(unsigned), creds.private_key).toString('base64url')
+      body = { grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: `${unsigned}.${signature}` }
+    } else {
+      body = { client_id: creds.client_id, client_secret: creds.client_secret, refresh_token: creds.refresh_token, grant_type: 'refresh_token' }
+    }
+    const res = await fetch(creds.token_uri || 'https://oauth2.googleapis.com/token', { method: 'POST', body: new URLSearchParams(body) })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(`Vertex sign-in failed: ${data.error_description || data.error || res.status}. Sign in again (see README).`)
+    Object.assign(vertexToken, { value: data.access_token, expires: Date.now() + (data.expires_in || 3600) * 1000 })
+  }
+  const loc = process.env.VERTEX_LOCATION || 'global'
+  const host = loc === 'global' ? 'aiplatform.googleapis.com' : `${loc}-aiplatform.googleapis.com`
+  return { token: vertexToken.value, baseUrl: `https://${host}/v1/projects/${project}/locations/${loc}/endpoints/openapi` }
 }
 
 // Public view: normalized, with the key replaced by a flag and its last 4 characters.
 function publicFloor(floor) {
   const key = keyFor(floor)
   const fromEnv = !floor.provider?.apiKey && !!key
-  return normalizeFloor({ ...floor, provider: { ...floor.provider, hasKey: !!key, keyHint: key ? (fromEnv ? `from ${PROVIDERS[floor.provider.type].keyEnv}` : `…${key.slice(-4)}`) : '' } }, floor.id)
+  const hint = !key ? '' : floor.provider.type === 'vertex' ? 'from VERTEX_CREDENTIALS' : fromEnv ? `from ${PROVIDERS[floor.provider.type].keyEnv}` : `…${key.slice(-4)}`
+  return normalizeFloor({ ...floor, provider: { ...floor.provider, hasKey: !!key, keyHint: hint } }, floor.id)
 }
 
 // Merge an edit from the browser into a stored floor. A blank apiKey keeps the existing key.
@@ -48,6 +82,7 @@ async function callModel(floor, system, prompt, maxTokens = 4096) {
   const { type, model, baseUrl } = floor.provider || {}
   const key = keyFor(floor)
   if (!type || type === 'none') throw new Error('This floor has no LLM provider configured.')
+  if (type === 'vertex' && !key) throw new Error('Vertex: set VERTEX_CREDENTIALS in .env to your sign-in or service-account file (see README).')
   if (!key && !(type === 'openai' && /localhost|127\.0\.0\.1/.test(baseUrl || ''))) throw new Error('No API key set for this floor.')
   const signal = AbortSignal.timeout(180_000)
   let res, data
@@ -77,14 +112,16 @@ async function callModel(floor, system, prompt, maxTokens = 4096) {
     if (!res.ok) throw new Error(data.error?.message || `Anthropic returned HTTP ${res.status}`)
     return (data.content || []).filter(block => block.type === 'text').map(block => block.text).join('')
   }
-  // OpenAI-compatible chat completions (OpenAI, xAI, OpenRouter, Ollama, LM Studio…)
-  res = await fetch(`${(baseUrl || PROVIDERS.openai.defaultBaseUrl).replace(/\/+$/, '')}/chat/completions`, {
+  // OpenAI-compatible chat completions (OpenAI, xAI, OpenRouter, Ollama, LM Studio… and Vertex's OpenAI endpoint)
+  const vertex = type === 'vertex' ? await vertexAccess() : null
+  const bearer = vertex ? vertex.token : key
+  res = await fetch(`${(vertex ? vertex.baseUrl : baseUrl || PROVIDERS.openai.defaultBaseUrl).replace(/\/+$/, '')}/chat/completions`, {
     method: 'POST', signal,
-    headers: { 'content-type': 'application/json', ...(key ? { authorization: `Bearer ${key}` } : {}) },
-    body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }),
+    headers: { 'content-type': 'application/json', ...(bearer ? { authorization: `Bearer ${bearer}` } : {}) },
+    body: JSON.stringify({ model: vertex && !model.includes('/') ? `google/${model}` : model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }),
   })
   data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data.error?.message || `Provider returned HTTP ${res.status}`)
+  if (!res.ok) throw new Error((Array.isArray(data) ? data[0] : data).error?.message || `Provider returned HTTP ${res.status}`)
   return data.choices?.[0]?.message?.content || ''
 }
 

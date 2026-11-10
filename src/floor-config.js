@@ -8,7 +8,9 @@ export const LAYOUTS = {
 }
 
 export const PROVIDERS = {
-  gemini: { label: 'Google Gemini', defaultModel: 'gemini-2.5-flash', keyEnv: 'GEMINI_API_KEY', needsBaseUrl: false },
+  gemini: { label: 'Google Gemini (AI Studio key)', defaultModel: 'gemini-3.8-flash', keyEnv: 'GEMINI_API_KEY', needsBaseUrl: false },
+  // Gemini billed to a Google Cloud project; signs in with VERTEX_CREDENTIALS from .env instead of an API key.
+  vertex: { label: 'Google Vertex AI (Cloud project)', defaultModel: 'gemini-3.8-flash', keyEnv: 'VERTEX_CREDENTIALS', needsBaseUrl: false, noKey: true },
   openai: { label: 'OpenAI-compatible (OpenAI, xAI Grok, OpenRouter, Ollama…)', defaultModel: 'gpt-5', keyEnv: 'OPENAI_API_KEY', needsBaseUrl: true, defaultBaseUrl: 'https://api.openai.com/v1' },
   anthropic: { label: 'Anthropic Claude', defaultModel: 'claude-sonnet-5-5', keyEnv: 'ANTHROPIC_API_KEY', needsBaseUrl: false },
   none: { label: 'Not connected', defaultModel: '', keyEnv: '', needsBaseUrl: false },
