@@ -15,6 +15,20 @@ Open the local address printed in Terminal (normally http://127.0.0.1:5173). Kee
 
 On your Mac, after installing dependencies, you can also double-click `Start AI Office.command` to start the office and open it in your browser.
 
+## Connect AI providers (Floors & AI)
+
+Open **Floors & AI** in the sidebar to manage floors. You can:
+
+- **Add** a floor, pick one of the three floor plans, name its four departments, and choose a colour.
+- **Edit** any floor's name, departments and LLM provider: **Google Gemini**, **Anthropic Claude**, or any **OpenAI-compatible** API (OpenAI, xAI Grok via `https://api.x.ai/v1`, OpenRouter, a local Ollama at `http://localhost:11434/v1`, …). Set the model, API key and optional extra instructions, then use **Test connection**.
+- **Hide** floors you don't use (at least one stays visible).
+
+Settings and API keys are stored on the computer running the office in `data/floors.json` (gitignored, owner-only permissions). Keys are never sent to the browser. Instead of saving a key, you can export `GEMINI_API_KEY`, `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` before `npm run dev`.
+
+When a floor is connected, a project assigned to it gets a **Run with AI** button (and an optional "start now" box when you create it). The assigned agent sits at their desk while the model works and answers in character for their department. The reply is filed in the file holder as an AI report, and the project is marked Done, or Blocked with the error. The model receives the project name, link and brief only: it cannot open repositories or browse.
+
+To use the office from another device on your network, run `npm run dev:lan` and open the "Network" address it prints. Anyone on that network can then edit floors and spend your API credits, so only do this on a network you trust.
+
 ## What works today
 
 - Explore three large interactive 3D floors with 200 animated, clickable virtual team members per floor. Search the directory to find a specific figure.
@@ -25,4 +39,4 @@ On your Mac, after installing dependencies, you can also double-click `Start AI 
 - Save project names, GitHub links or local paths, work briefs, and floor-wide or individual assignments. Set progress manually to Planned, In progress, Blocked, or Done.
 - Save manual reports in the file holder, optionally linked to a project and individual agent. An individual's detail panel shows their linked work and notes. Assignments and reports are stored in this browser's local storage on this Mac.
 
-Characters are simulated, stylized 3D representations. A person appears at a desk when at least one individual assignment is manually marked In progress; otherwise the person stays in their department’s idle room. Floor-wide assignments do not change individual positions. These positions do not indicate live agent activity. Agent connections, execution, GitHub access, and automatic activity or reports are **not connected**. Saving an assignment does not send a task to an agent. Browser data can be cleared by the browser, so keep separate copies of important information.
+Characters are simulated, stylized 3D representations. A person appears at a desk when at least one individual assignment is manually marked In progress; otherwise the person stays in their department’s idle room. Floor-wide assignments do not change individual positions. These positions do not indicate live agent activity. Only floors you connect in **Floors & AI** do real work, and only when you run a project. There is no GitHub access or background activity. Browser data can be cleared by the browser, so keep separate copies of important information.

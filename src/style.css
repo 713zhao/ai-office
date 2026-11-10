@@ -17,3 +17,10 @@
 /* Keep the building selector beside the interior, and show it first on mobile. */
 .dashboard-grid{grid-template-areas:'office stack' 'office info';grid-template-rows:auto 1fr;align-items:start}.office-panel{grid-area:office;align-self:start}.stack-column{grid-area:stack;min-width:0}.right-column{grid-area:info}.activity-card{flex:none}
 @media(max-width:960px){.dashboard-grid{grid-template-columns:1fr;grid-template-areas:'stack' 'office' 'info';grid-template-rows:auto}.stack-column{width:100%}}
+
+/* Floors & AI settings */
+.checkbox-row{display:flex!important;align-items:center;gap:9px!important;font-weight:500!important}.dialog .checkbox-row input{width:auto}
+.form-row{display:grid;grid-template-columns:1fr 70px 80px;gap:10px}.form-row--4{grid-template-columns:repeat(2,1fr)}.dialog input[type=color]{padding:3px;height:40px}
+.item-details button:disabled,.primary-button:disabled{opacity:.45;cursor:default}
+.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+code{font-size:.95em;color:#cfe6da}
